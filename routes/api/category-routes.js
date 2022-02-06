@@ -2,7 +2,7 @@ const router = require('express').Router();
 const { Category, Product } = require('../../models');
 
 // Find all categories and inclue its associated products
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const categoryData = await Category.findAll({
       include: { model: Product },
@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
 });
 
 // Fine one category by its 'id' value and include its associated products
-router.get('/:id', (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const categoryData = await Category.findByPk(req.params.id, {
       include: { model: Product },

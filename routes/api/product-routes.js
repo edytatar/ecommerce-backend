@@ -1,29 +1,41 @@
 const router = require('express').Router();
 const { Product, Category, Tag, ProductTag } = require('../../models');
 
+
 // Get all products and include Category and Tag data
-router.get('/', (req, res) => {  
-  Product.findAll({
-    include: [Category,
-      {
-        model: Tag,
-        through: ProductTag
-      },
-    ],
-  }).then((productData) => {
-    res.json(productData);
-  });
+router.get('/', async (req, res) => { 
+  try {
+    const productData = await Product.findAll({
+      include: [Category,
+        {
+          model: Tag,
+          through: ProductTag
+        },
+      ],
+    });
+    res.status(200).json(productData);
+  } catch (err) {
+    res.status(500).json(err);
+  } 
 });
 
+
 // Get one product and include Category and Tag data
-router.get('/:id', (req, res) => {
-  Product.findByPk((req.params.id),
-    {
-      include: [{ model: Category }, { model: Tag }]
-    },
-  ).then((productData) => {
-    res.json(productData);
-  })
+router.get('/:id', async (req, res) => {
+  try {
+    const productData = await Product.findByPk(req.params.id, {
+        include: [{ model: Category }, { model: Tag }],
+    });
+
+    if (!productData) {
+      res.status(404).json({ message: 'No product found with this id.' });
+      return;
+    }
+
+    res.status(200).json(productData);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
 
@@ -52,7 +64,7 @@ router.post('/', (req, res) => {
     });
 });
 
-// update product
+// Update product by its 'id' value
 router.put('/:id', (req, res) => {
   // update product data
   Product.update(req.body, {
